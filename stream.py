@@ -224,9 +224,6 @@ from sklearn.metrics import (
     precision_score, recall_score, f1_score
 )
 import seaborn as sns
-# Convert probabilities to class predictions
-y_true = weekly_df['deterioration_in_90_days']
-y_pred = (weekly_df['risk_score'] >= 0.5).astype(int)  # threshold 0.5
 
 # Compute metrics
 acc = accuracy_score(y_true, y_pred)
@@ -281,7 +278,8 @@ weekly_std = df.groupby(['patient_id','week']).agg({
 
 weekly_df = pd.merge(weekly_mean, weekly_std, on=['patient_id','week'], suffixes=('_mean','_std'))
 weekly_df.rename(columns={'age':'age_mean'}, inplace=True)
-
+y_true = weekly_df['deterioration_in_90_days']
+y_pred = (weekly_df['risk_score'] >= 0.5).astype(int) 
 # -----------------------------
 # Trend features
 # -----------------------------
