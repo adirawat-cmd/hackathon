@@ -219,6 +219,21 @@ import shap
 import plotly.express as px
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import (
+    accuracy_score, confusion_matrix, roc_curve, roc_auc_score,
+    precision_score, recall_score, f1_score
+)
+import seaborn as sns
+# Convert probabilities to class predictions
+y_true = weekly_df['deterioration_in_90_days']
+y_pred = (weekly_df['risk_score'] >= 0.5).astype(int)  # threshold 0.5
+
+# Compute metrics
+acc = accuracy_score(y_true, y_pred)
+prec = precision_score(y_true, y_pred)
+rec = recall_score(y_true, y_pred)
+f1 = f1_score(y_true, y_pred)
+roc_auc = roc_auc_score(y_true, weekly_df['risk_score'])
 
 # -----------------------------
 # Load Data
@@ -436,3 +451,29 @@ if not high_risk_patients.empty:
     st.table(high_risk_patients)
 else:
     st.write("No patients above high-risk threshold currently.")
+
+
+
+st.subheader("📊 Model Performance Metrics")
+st.metric("Accuracy", f"{acc:.2f}")
+st.metric("Precision", f"{prec:.2f}")
+st.metric("Recall", f"{rec:.2f}")
+st.metric("F1 Score", f"{f1:.2f}")
+st.metric("ROC AUC", f"{roc_auc:.2f}")
+st.subheader("Confusion Matrix")
+cm = confusion_matrix(y_true, y_pred)
+fig_cm, ax = plt.subplots()
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+ax.set_xlabel("Predicted")
+ax.set_ylabel("Actual")
+st.pyplot(fig_cm)
+st.subheader("ROC Curve")
+fpr, tpr, thresholds = roc_curve(y_true, weekly_df['risk_score'])
+fig_roc, ax = plt.subplots()
+ax.plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}")
+ax.plot([0, 1], [0, 1], 'k--')
+ax.set_xlabel("False Positive Rate")
+ax.set_ylabel("True Positive Rate")
+ax.set_title("ROC Curve")
+ax.legend()
+st.pyplot(fig_roc)
