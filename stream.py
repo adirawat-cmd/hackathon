@@ -272,13 +272,7 @@ weekly_std = df.groupby(['patient_id','week']).agg({
 
 weekly_df = pd.merge(weekly_mean, weekly_std, on=['patient_id','week'], suffixes=('_mean','_std'))
 weekly_df.rename(columns={'age':'age_mean'}, inplace=True)
-y_true = weekly_df['deterioration_in_90_days']
-y_pred = (weekly_df['risk_score'] >= 0.5).astype(int) 
-acc = accuracy_score(y_true, y_pred)
-prec = precision_score(y_true, y_pred)
-rec = recall_score(y_true, y_pred)
-f1 = f1_score(y_true, y_pred)
-roc_auc = roc_auc_score(y_true, weekly_df['risk_score'])
+
 # -----------------------------
 # Trend features
 # -----------------------------
@@ -312,7 +306,13 @@ for f in features:
 # -----------------------------
 X_all = weekly_df[features]
 weekly_df['risk_score'] = model.predict_proba(X_all)[:,1]
-
+y_true = weekly_df['deterioration_in_90_days']
+y_pred = (weekly_df['risk_score'] >= 0.5).astype(int) 
+acc = accuracy_score(y_true, y_pred)
+prec = precision_score(y_true, y_pred)
+rec = recall_score(y_true, y_pred)
+f1 = f1_score(y_true, y_pred)
+roc_auc = roc_auc_score(y_true, weekly_df['risk_score'])
 # -----------------------------
 # Streamlit App
 # -----------------------------
